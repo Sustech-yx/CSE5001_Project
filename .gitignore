@@ -6,6 +6,10 @@ __pycache__/
 # VScode
 .vscode
 
+# dataset
+processed_data.zip
+processed_data/
+.ipynb_checkpoints/
 # C extensions
 *.so
 
