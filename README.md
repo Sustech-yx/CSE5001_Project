@@ -12,7 +12,7 @@ CONDA_RESTORE_FREE_CHANNEL=1 conda env create -f environment.yml
 or
 
 ```shell
-CONDA_RESTORE_FREE_CHANNEL=1 conda env create -f environment.yml
+conda env create -f environment4mac.yml
 ```
 
 ## Develop
