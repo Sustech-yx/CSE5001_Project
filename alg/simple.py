@@ -3,17 +3,7 @@ from data.dataset import MNISTDataset
 from network.CNN import CNN
 from alg.base import BaseAlg
 from tqdm import tqdm
-
-
-def reduce(batch_data):
-	result_list = []
-	for batch in batch_data:
-		for index, channel in enumerate(batch):
-			if torch.sum(channel) != 0:
-				break
-		result_list.append(batch[index])
-	batch_data = torch.stack(result_list)
-	return batch_data.unsqueeze(1)
+from utils import reduce
 
 
 class SimpleAlgorithm(BaseAlg):

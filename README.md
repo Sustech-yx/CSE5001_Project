@@ -6,7 +6,13 @@ A Robust Handwritten Digit Recognition Network.
 First create a conda virtual environment with the following script.
 
 ```shell
-conda env create -f environment.yml
+CONDA_RESTORE_FREE_CHANNEL=1 conda env create -f environment.yml
+```
+
+or
+
+```shell
+CONDA_RESTORE_FREE_CHANNEL=1 conda env create -f environment.yml
 ```
 
 ## Develop
