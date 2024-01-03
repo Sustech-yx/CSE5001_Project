@@ -12,12 +12,12 @@ def reduce(batch_data):
     return batch_data.unsqueeze(1)
 
 
-def visial(data, label):        
-    for index, channel in enumerate(data):
-        if torch.sum(channel) != 0:
-            break
-        
-    data = data[index]
+def visial(data):        
+    if len(data.shape) == 3:
+        for index, channel in enumerate(data):
+            if torch.sum(channel) != 0:
+                break
+        data = data[index]
     plt.imshow(data.reshape(28,28), cmap='gray')
     plt.axis('off')
     plt.show()

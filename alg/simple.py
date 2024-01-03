@@ -38,17 +38,22 @@ class SimpleAlgorithm(BaseAlg):
 		self.model.eval()
 		correct = 0
 		total = 0
+		wrong_pred = ([], [], [])
 		with torch.no_grad():
 			for data, labels in test_loader:
 				data = reduce(data)
 				outputs = self.model(data)
 				_, predicted = torch.max(outputs.data, 1)
+				# print(predicted, labels)
 				total += labels.size(0)
 				correct += (predicted == labels).sum().item()
+				wrong_pred[0].append(data[predicted != labels])
+				wrong_pred[1].append(predicted[predicted != labels])
+				wrong_pred[2].append(labels[predicted != labels])
 		accuracy = correct / total
-		print(correct, total)
+		# print(correct, total)
 		print('Accuracy on the val set: %d %%' % (100 * correct / total))
-		return accuracy
+		return wrong_pred, accuracy
 	
 	def save(self, path):
 		torch.save(self.model, path)
