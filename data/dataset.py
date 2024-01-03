@@ -5,7 +5,7 @@ from torch.utils.data import Dataset
 class MNISTDataset(Dataset):
     def __init__(self, root_dir, split='train', transform=None):
         self.root_dir = os.path.join(root_dir, split)
-        self.classes = os.listdir(self.root_dir)
+        self.classes =  [file for file in os.listdir(self.root_dir) if not file.startswith('.')]
         self.transform = transform
         self.data = self.load_data()
 

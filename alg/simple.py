@@ -39,6 +39,7 @@ class SimpleAlgorithm(BaseAlg):
 		correct = 0
 		total = 0
 		wrong_pred = ([], [], [])
+		correct_pred = ([], [], [])
 		with torch.no_grad():
 			for data, labels in test_loader:
 				data = reduce(data)
@@ -50,13 +51,16 @@ class SimpleAlgorithm(BaseAlg):
 				wrong_pred[0].append(data[predicted != labels])
 				wrong_pred[1].append(predicted[predicted != labels])
 				wrong_pred[2].append(labels[predicted != labels])
+				correct_pred[0].append(data[predicted==labels])
+				correct_pred[1].append(predicted[predicted==labels])
+				correct_pred[2].append(labels[predicted==labels])
 		accuracy = correct / total
 		# print(correct, total)
 		print('Accuracy on the val set: %d %%' % (100 * correct / total))
-		return wrong_pred, accuracy
+		return wrong_pred, accuracy,correct_pred
 	
 	def save(self, path):
-		torch.save(self.model, path)
+		torch.save(self.model.state_dict(), path)
 
 
 	def load(self, path):
