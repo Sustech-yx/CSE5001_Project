@@ -7,8 +7,9 @@ from utils import reduce
 
 
 class FuzzyAlgorithm(BaseAlg):
-    def __init__(self):
+    def __init__(self, shuffle=True):
         self.model = CNN1()
+        self.shuffle = shuffle
         self.criterion = torch.nn.CrossEntropyLoss()
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=0.001)
 
@@ -18,7 +19,8 @@ class FuzzyAlgorithm(BaseAlg):
             # data = reduce(data)
             # print(data.shape)
             # print(data.size(1))
-            data=data[:, torch.randperm(data.size(1)), :, :]
+            if self.shuffle:
+                data=data[:, torch.randperm(data.size(1)), :, :]
 
             self.optimizer.zero_grad()
             outputs = self.model(data)
