@@ -10,6 +10,7 @@ __pycache__/
 processed_data.zip
 processed_data/
 .ipynb_checkpoints/
+temp*
 # C extensions
 *.so
 
