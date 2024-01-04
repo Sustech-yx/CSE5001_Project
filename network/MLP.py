@@ -4,7 +4,7 @@ import numpy as npy
 
 
 class MLP(nn.Module):
-	def __init__(self, hidden_dim) -> None:
+	def __init__(self, hidden_dim=784) -> None:
 		super(MLP, self).__init__()
 		lin1 = nn.Linear(10 * 28 * 28, hidden_dim)
 		lin2 = nn.Linear(hidden_dim, hidden_dim)
