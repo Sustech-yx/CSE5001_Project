@@ -1,5 +1,5 @@
 import os
-import numpy as np
+import numpy as npy
 from torch.utils.data import Dataset
 
 class MNISTDataset(Dataset):
@@ -23,7 +23,7 @@ class MNISTDataset(Dataset):
 
     def __getitem__(self, idx):
         file_path, label = self.data[idx]
-        data = np.load(file_path)
+        data = npy.load(file_path)
         if self.transform:
             data = self.transform(data)
         return data, label
@@ -40,4 +40,18 @@ class NONOISE_MNISTDataset(Dataset):
         data = []
         for class_folder in self.classes:
             class_path = os.path.join(self.root_dir, class_folder)
+            for file_name in os.listdir(class_path):
+                file_path = os.path.join(class_path, file_name)
+                data.append((npy.load(file_path), int(class_folder)))
+        return data
+    
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        data, label = self.data[idx]
+        # data = np.load(file_path)
+        if self.transform:
+            data = self.transform(data)
+        return data, label
             
