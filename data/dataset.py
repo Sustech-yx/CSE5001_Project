@@ -27,3 +27,17 @@ class MNISTDataset(Dataset):
         if self.transform:
             data = self.transform(data)
         return data, label
+    
+
+class NONOISE_MNISTDataset(Dataset):
+    def __init__(self, root_dir, transform=None):
+        self.root_dir = root_dir
+        self.classes =  [file for file in os.listdir(self.root_dir) if not file.startswith('.')]
+        self.transform = transform
+        self.data = self.load_data()
+
+    def load_data(self):
+        data = []
+        for class_folder in self.classes:
+            class_path = os.path.join(self.root_dir, class_folder)
+            
