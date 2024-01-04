@@ -28,7 +28,7 @@ def penalty(logits, y):
 
 
 class IRM_MLP(BaseAlg):
-	def __init__(self, penalty_weight=10000, steps=53, penalty_anneal_iters=19, learning_rate=0.0002):
+	def __init__(self, penalty_weight=10000, steps=501, penalty_anneal_iters=190, learning_rate=0.0002):
 		self.lr = learning_rate
 		self.model = MLP()
 		self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
@@ -90,15 +90,25 @@ class IRM_MLP(BaseAlg):
 
 	def train_with_eval(self, train_loader1, train_loader2, val_loader):
 		self.count += 1
+		self.model.train()
 		for (data1, label1), (data2, label2) in zip(train_loader1, train_loader2):
+			temp = torch.randperm(data1.size(1))
+			num_samples = int(data1.size(0) * 0.1)
+			data1[:num_samples] = data1[:num_samples, temp, :, :]
+			random_indices = torch.randperm(data1.size(0))
+			data1 = data1[random_indices]
 			output1 = self.model(data1).squeeze()
 			_, logits1 = torch.max(output1.data, 1)
 			# print(logits1, label1)
-			temp = torch.cat((torch.arange(data2.size(1) - self.diff, data2.size(1)), torch.arange(0, data2.size(1) - self.diff)))
-			data2 = data2[:, temp, :, :]
+
+			temp = torch.randperm(data2.size(1))
+			num_samples = int(data2.size(0) * 0.2)
+			data2[:num_samples] = data2[:num_samples, temp, :, :]
+			random_indices = torch.randperm(data2.size(0))
+			data2 = data2[random_indices]
 			output2 = self.model(data2).squeeze()
 			_, logits2 = torch.max(output2.data, 1)
-			train_nll = torch.stack([mean_nll(logits1, label1), mean_nll(logits2, label2)]).mean()
+			loss = torch.stack([mean_nll(logits1, label1), mean_nll(logits2, label2)]).mean()
 			train_acc = torch.stack([mean_accuracy(logits1, label1), mean_accuracy(logits2, label2)]).mean()
 			train_penalty = torch.stack([penalty(logits1, label1), penalty(logits2, label2)]).mean()
 
@@ -106,20 +116,21 @@ class IRM_MLP(BaseAlg):
 			for w in self.model.parameters():
 				weight_norm += w.norm().pow(2)
 
-			loss = train_nll.clone()
+			# loss = train_nll.clone()
 			loss += self.l2_regularizer_weight * weight_norm
 			penalty_weight = (self.penalty_weight 
 				if self.count >= self.penalty_anneal_iters else 1.0)
-			# print(loss, penalty_weight * train_penalty)
-			loss += penalty_weight * train_penalty
-			if penalty_weight > 1.0:
-			# Rescale the entire loss to keep gradients in a reasonable range
-				loss /= penalty_weight
+			# loss += penalty_weight * train_penalty
+			# if penalty_weight > 1.0:
+			# # Rescale the entire loss to keep gradients in a reasonable range
+			# 	loss /= penalty_weight
 
 			self.optimizer.zero_grad()
 			loss.backward()
 			self.optimizer.step()
-		print("Train accuracy: ", float(train_acc), ". Loss: ", float(loss))
+		# print(logits1, label1, logits2, label2)
+		# print("Train accuracy: ", float(train_acc), ". Loss: ", float(loss))
+		
 
 	def predict(self, data_loader):
 		self.model.eval()
@@ -153,7 +164,7 @@ class IRM_MLP(BaseAlg):
 		accuracy = correct / total
 		# print(correct, total)
 		print('Accuracy on the val set: %d %%' % (100 * correct / total))
-		return wrong_pred, accuracy,correct_pred
+		return wrong_pred, accuracy, correct_pred
 	
 	def save(self, path):
 		torch.save(self.model.state_dict(), path)
@@ -165,6 +176,7 @@ from network.CNN import CNN1
 
 class IRM_CNN(BaseAlg):
 	def __init__(self, penalty_weight=10000, steps=53, penalty_anneal_iters=19, learning_rate=0.0002):
+		raise ValueError("This class is deprecated.")
 		self.lr = learning_rate
 		self.model = CNN1()
 		self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
