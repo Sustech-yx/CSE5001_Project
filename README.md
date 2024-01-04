@@ -76,6 +76,6 @@ Evaluate your algorithm in `main.ipynb`.
 
 ## TODO
 
-- [-] Implement visualized components.
+- [x] Implement visualized components.
 
 - [ ] Try different algorithms.
