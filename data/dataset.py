@@ -22,11 +22,14 @@ class MNISTDataset(Dataset):
         return len(self.data)
 
     def __getitem__(self, idx):
-        file_path, label = self.data[idx]
-        data = npy.load(file_path)
-        if self.transform:
-            data = self.transform(data)
-        return data, label
+        if isinstance(idx, slice):
+            return [(npy.load(self.data[i][0]), self.data[i][1]) for i in range(*idx.indices(len(self.data)))]
+        else:
+            file_path, label = self.data[idx]
+            data = npy.load(file_path)
+            if self.transform:
+                data = self.transform(data)
+            return data, label
     
 
 class NONOISE_MNISTDataset(Dataset):
