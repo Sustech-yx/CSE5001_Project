@@ -9,6 +9,8 @@ __pycache__/
 # dataset
 processed_data.zip
 processed_data/
+*.zip
+processed_data_nonoise/
 .ipynb_checkpoints/
 temp*
 # C extensions
