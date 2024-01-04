@@ -16,6 +16,9 @@ temp*
 # C extensions
 *.so
 
+# model
+model/
+
 # Distribution / packaging
 .Python
 build/
