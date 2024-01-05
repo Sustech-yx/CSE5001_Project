@@ -92,15 +92,20 @@ class IRM_MLP(BaseAlg):
 		self.count += 1
 		self.model.train()
 		for (data1, label1), (data2, label2) in zip(train_loader1, train_loader2):
+			# 准备两个环境，分别以0.1的概率、0.2的概率通过随机打乱移除标签和特征所在维度的关系
+			# temp: 用于打乱第二个维度 [batch_size, 10, 28, 28] 的indices
 			temp = torch.randperm(data1.size(1))
+			# 只打乱前10%的数据
 			num_samples = int(data1.size(0) * 0.1)
 			data1[:num_samples] = data1[:num_samples, temp, :, :]
+			# 为了保证是打乱的随机效果，再在第一个维度进行打乱，意图是让被打算的数据均匀分布在batch中
 			random_indices = torch.randperm(data1.size(0))
 			data1 = data1[random_indices]
+			# 得到模型输出
 			output1 = self.model(data1).squeeze()
 			_, logits1 = torch.max(output1.data, 1)
-			# print(logits1, label1)
 
+			# 与env1相似，只是打散的比例为20%
 			temp = torch.randperm(data2.size(1))
 			num_samples = int(data2.size(0) * 0.2)
 			data2[:num_samples] = data2[:num_samples, temp, :, :]
@@ -108,7 +113,8 @@ class IRM_MLP(BaseAlg):
 			data2 = data2[random_indices]
 			output2 = self.model(data2).squeeze()
 			_, logits2 = torch.max(output2.data, 1)
-			loss = torch.stack([mean_nll(logits1, label1), mean_nll(logits2, label2)]).mean()
+			# 剩下这些就是照搬提供的代码了
+			train_nll = torch.stack([mean_nll(logits1, label1), mean_nll(logits2, label2)]).mean()
 			train_acc = torch.stack([mean_accuracy(logits1, label1), mean_accuracy(logits2, label2)]).mean()
 			train_penalty = torch.stack([penalty(logits1, label1), penalty(logits2, label2)]).mean()
 
@@ -116,14 +122,14 @@ class IRM_MLP(BaseAlg):
 			for w in self.model.parameters():
 				weight_norm += w.norm().pow(2)
 
-			# loss = train_nll.clone()
+			loss = train_nll.clone()
 			loss += self.l2_regularizer_weight * weight_norm
 			penalty_weight = (self.penalty_weight 
 				if self.count >= self.penalty_anneal_iters else 1.0)
 			# loss += penalty_weight * train_penalty
-			# if penalty_weight > 1.0:
-			# # Rescale the entire loss to keep gradients in a reasonable range
-			# 	loss /= penalty_weight
+			if penalty_weight > 1.0:
+			# Rescale the entire loss to keep gradients in a reasonable range
+				loss /= penalty_weight
 
 			self.optimizer.zero_grad()
 			loss.backward()
