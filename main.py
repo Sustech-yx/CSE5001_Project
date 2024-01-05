@@ -27,20 +27,20 @@ setup_seed(3407)
 train_dataset = MNISTDataset("./processed_data", "train")
 val_dataset = MNISTDataset("./processed_data", "val")
 
-train_loader = DataLoader(dataset=train_dataset, batch_size=64, shuffle=True, num_workers=4)
-val_loader = DataLoader(dataset=val_dataset, batch_size=64, shuffle=True, num_workers=4)
+# train_loader = DataLoader(dataset=train_dataset, batch_size=64, shuffle=True, num_workers=4)
+val_loader = DataLoader(dataset=val_dataset, batch_size=100, shuffle=True, num_workers=4)
 
 train_dataset4IRM1 = train_dataset[::2]
 train_dataset4IRM2 = train_dataset[1::2]
 val_dataset4IRM = val_dataset
 
-train_loader4IRM1 = DataLoader(dataset=train_dataset4IRM1, batch_size=64, shuffle=True)
-train_loader4IRM2 = DataLoader(dataset=train_dataset4IRM2, batch_size=64, shuffle=True)
+train_loader4IRM1 = DataLoader(dataset=train_dataset4IRM1, batch_size=30000, shuffle=True)
+train_loader4IRM2 = DataLoader(dataset=train_dataset4IRM2, batch_size=30000, shuffle=True)
+print(len(train_dataset4IRM1), len(train_dataset4IRM2))
 val_loader = DataLoader(dataset=val_dataset, batch_size=64, shuffle=True)
 alg_irm = IRM_MLP(penalty_weight=10000)
 for epoches in tqdm(range(alg_irm.steps)):
     alg_irm.train_with_eval(train_loader4IRM1, train_loader4IRM2, val_loader)
     if epoches % 100 == 0:
         alg_irm.evaluate(val_loader)
-
-alg_irm.save("./model/irm.pkl")
+        alg_irm.save("./model/irm_epoch_{}.pkl".format(epoches))

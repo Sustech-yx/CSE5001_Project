@@ -8,7 +8,7 @@ class MLP(nn.Module):
 		super(MLP, self).__init__()
 		lin1 = nn.Linear(10 * 28 * 28, hidden_dim)
 		lin2 = nn.Linear(hidden_dim, hidden_dim)
-		lin3 = nn.Linear(hidden_dim, 10)
+		lin3 = nn.Linear(hidden_dim, 1)
 		for lin in [lin1, lin2, lin3]:
 			nn.init.xavier_uniform_(lin.weight)
 			nn.init.zeros_(lin.bias)
