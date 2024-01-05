@@ -126,7 +126,7 @@ class IRM_MLP(BaseAlg):
 			loss += self.l2_regularizer_weight * weight_norm
 			penalty_weight = (self.penalty_weight 
 				if self.count >= self.penalty_anneal_iters else 1.0)
-			# loss += penalty_weight * train_penalty
+			loss += penalty_weight * train_penalty
 			if penalty_weight > 1.0:
 			# Rescale the entire loss to keep gradients in a reasonable range
 				loss /= penalty_weight
@@ -156,6 +156,12 @@ class IRM_MLP(BaseAlg):
 		correct_pred = ([], [], [])
 		with torch.no_grad():
 			for data, labels in test_loader:
+				temp = torch.randperm(data.size(1))
+				num_samples = int(data.size(0) * 0.9)
+				data[:num_samples] = data[:num_samples, temp, :, :]
+				random_indices = torch.randperm(data.size(0))
+				data = data[random_indices]
+
 				predicted = self.model(data)
 				_, predicted = torch.max(predicted.data, 1)
 				# print(predicted, labels)
