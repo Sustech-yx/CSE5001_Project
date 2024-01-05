@@ -102,7 +102,8 @@ class IRM_MLP(BaseAlg):
 			random_indices = torch.randperm(data1.size(0))
 			data1 = data1[random_indices]
 			# 得到模型输出
-			logits1 = self.model(data1).squeeze()
+			output1 = self.model(data1).squeeze()
+			_, logits1 = torch.max(output1.data, 1)
 
 			# 与env1相似，只是打散的比例为20%
 			temp = torch.randperm(data2.size(1))
@@ -110,8 +111,8 @@ class IRM_MLP(BaseAlg):
 			data2[:num_samples] = data2[:num_samples, temp, :, :]
 			random_indices = torch.randperm(data2.size(0))
 			data2 = data2[random_indices]
-			logits2 = self.model(data2).squeeze()
-			# _, logits2 = torch.max(output2.data, 1)
+			output2 = self.model(data2).squeeze()
+			_, logits2 = torch.max(output2.data, 1)
 			# 剩下这些就是照搬提供的代码了
 			train_nll = torch.stack([mean_nll(logits1, label1), mean_nll(logits2, label2)]).mean()
 			train_acc = torch.stack([mean_accuracy(logits1, label1), mean_accuracy(logits2, label2)]).mean()
@@ -160,8 +161,8 @@ class IRM_MLP(BaseAlg):
 				# data[:num_samples] = data[:num_samples, temp, :, :]
 				# random_indices = torch.randperm(data.size(0))
 				# data = data[random_indices]
-				predicted = self.model(data).squeeze()
-				# _, predicted = torch.max(predicted.data, 1)
+				predicted = self.model(data)#.squeeze()
+				_, predicted = torch.max(predicted.data, 1)
 				# print(predicted, labels)
 				total += labels.size(0)
 				correct += (predicted == labels).sum().item()
