@@ -14,7 +14,7 @@ def torch_xor(a, b):
 
 def mean_nll(logits, y):
 	# print(y.type(), logits.type())
-	return nn.CrossEntropyLoss()(logits, y)(logits.float(), y.float())
+	return nn.CrossEntropyLoss()(logits, y)
 
 def mean_accuracy(logits, y):
 	preds = (logits > 0.).float()
