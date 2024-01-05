@@ -14,7 +14,7 @@ def torch_xor(a, b):
 
 def mean_nll(logits, y):
 	# print(y.type(), logits.type())
-	return nn.functional.binary_cross_entropy_with_logits(logits.float(), y.float())
+	return nn.CrossEntropyLoss()(logits, y)(logits.float(), y.float())
 
 def mean_accuracy(logits, y):
 	preds = (logits > 0.).float()
@@ -39,19 +39,6 @@ class IRM_MLP(BaseAlg):
 		self.penalty_anneal_iters = penalty_anneal_iters
 		self.count = 0
 		# torch.autograd.set_detect_anomaly(True)
-
-	def mean_nll(logits, y):
-		return nn.functional.binary_cross_entropy_with_logits(logits, y)
-
-	def mean_accuracy(logits, y):
-		preds = (logits > 0.).float()
-		return ((preds - y).abs() < 1e-2).float().mean()
-
-	def penalty(logits, y):
-		scale = torch.tensor(1.).requires_grad_()
-		loss = mean_nll(logits * scale, y)
-		grad = autograd.grad(loss, [scale], create_graph=True)[0]
-		return torch.sum(grad**2)
 
 	def train(self, train_loader):
 		# self.model.train()
