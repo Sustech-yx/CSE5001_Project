@@ -4,6 +4,7 @@ from network.CNN import CNN1
 from alg.base import BaseAlg
 from tqdm import tqdm
 from utils import reduce
+import numpy as npy
 
 
 class FuzzyAlgorithm(BaseAlg):
@@ -14,6 +15,7 @@ class FuzzyAlgorithm(BaseAlg):
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=0.001)
 
     def train(self, train_loader):
+        los = []
         self.model.train()
         for data, labels in tqdm(train_loader):
             # data = reduce(data)
@@ -25,18 +27,21 @@ class FuzzyAlgorithm(BaseAlg):
             self.optimizer.zero_grad()
             outputs = self.model(data)
             loss = self.criterion(outputs, labels)
+            los.append(loss)
             loss.backward()
             self.optimizer.step()
+        return los
 
     def predict(self, val_loader):
         self.model.eval()
         predictions = []
         with torch.no_grad():
-            for data, _ in val_loader:
-                # data = reduce(data)
+            for data, file_path in val_loader:
+                # file_path = data[0]
+                # data = torch.Tensor(npy.load(file_path))
                 outputs = self.model(data)
                 _, predicted = torch.max(outputs.data, 1)
-                predictions.extend(predicted.cpu().numpy())
+                predictions.extend((file_path, predicted.cpu().numpy()))
         return predictions
 
     def evaluate(self, test_loader):
@@ -65,4 +70,4 @@ class FuzzyAlgorithm(BaseAlg):
 
 
     def load(self, path):
-        self.model.load_state_dict(torch.load(path))
+        self.model.load_state_dict(path)

@@ -14,24 +14,27 @@ class SimpleAlgorithm(BaseAlg):
 
 	def train(self, train_loader):
 		self.model.train()
+		los = []
 		for data, labels in tqdm(train_loader):
 			data = reduce(data)
 			# print(data.shape)
 			self.optimizer.zero_grad()
 			outputs = self.model(data)
 			loss = self.criterion(outputs, labels)
+			los.append(loss)
 			loss.backward()
 			self.optimizer.step()
+		return los
 
 	def predict(self, val_loader):
 		self.model.eval()
 		predictions = []
 		with torch.no_grad():
-			for data, _ in val_loader:
+			for data, file_path in val_loader:
 				data = reduce(data)
 				outputs = self.model(data)
 				_, predicted = torch.max(outputs.data, 1)
-				predictions.extend(predicted.cpu().numpy())
+				predictions.extend((file_path, predicted.cpu().numpy()))
 		return predictions
 
 	def evaluate(self, test_loader):

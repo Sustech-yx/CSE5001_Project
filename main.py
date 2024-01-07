@@ -11,6 +11,8 @@ import torch
 import numpy as np
 import random
 import os
+
+torch.set_grad_enabled(True)
  
 def setup_seed(seed=3407):
     random.seed(seed)  # Python的随机性
@@ -34,13 +36,13 @@ train_dataset4IRM1 = train_dataset[::2]
 train_dataset4IRM2 = train_dataset[1::2]
 val_dataset4IRM = val_dataset
 
-train_loader4IRM1 = DataLoader(dataset=train_dataset4IRM1, batch_size=30000, shuffle=True)
-train_loader4IRM2 = DataLoader(dataset=train_dataset4IRM2, batch_size=30000, shuffle=True)
+train_loader4IRM1 = DataLoader(dataset=train_dataset4IRM1, batch_size=1000, shuffle=True)
+train_loader4IRM2 = DataLoader(dataset=train_dataset4IRM2, batch_size=1000, shuffle=True)
 print(len(train_dataset4IRM1), len(train_dataset4IRM2))
-val_loader = DataLoader(dataset=val_dataset, batch_size=64, shuffle=True)
-alg_irm = IRM_MLP(penalty_weight=10000)
+val_loader = DataLoader(dataset=val_dataset, batch_size=100, shuffle=True)
+alg_irm = IRM_MLP(penalty_weight=91483)
 for epoches in tqdm(range(alg_irm.steps)):
     alg_irm.train_with_eval(train_loader4IRM1, train_loader4IRM2, val_loader)
-    if epoches % 100 == 0:
+    if epoches % 10 == 0:
         alg_irm.evaluate(val_loader)
         alg_irm.save("./model/irm_epoch_{}.pkl".format(epoches))
